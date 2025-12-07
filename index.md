@@ -8,5 +8,5 @@ permalink: /
 
 ## Choose your language / Escolha seu idioma:
 
-- 🇧🇷 [Português](pt/index.html)
-- 🇺🇸 [English](en/index.html)
+- 🇧🇷 [Português](/portfolio-seguranca/pt/)
+- 🇺🇸 [English](/portfolio-seguranca/en/)
