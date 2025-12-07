@@ -5,7 +5,7 @@ author: "William Menezes"
 
 # URL base (GitHub Pages gera automaticamente)
 baseurl: "/portfolio-seguranca" # Adiciona o nome do repositório como base
-url: "https://wdickson11.github.io" # Deve ser seuusername.github.io (sem o nome do repositório, pois o baseurl já trata disso)
+url: "https://wdickson11.github.io" 
 
 # Theme (escolha entre: minimal, cayman, slate, merlot, etc.)
 theme: minimal
@@ -15,20 +15,16 @@ navbar:
   - name: "Home"
     link: "/"
   - name: "Português 🇧🇷"
-    link: "/pt/"
+    link: "{{ site.baseurl }}/pt/"
   - name: "English 🇺🇸"
-    link: "/en/"
+    link: "{{ site.baseurl }}/en/"
   - name: "Projects"
-    link: "/projects/"
+    link: "{{ site.baseurl }}/projects/"
   - name: "Reports"
-    link: "/projects/reports/"
+    link: "{{ site.baseurl }}/projects/reports/"
 
 # Social links (opcional)
 social_links:
   linkedin: "https://www.linkedin.com/in/williamdmenezes"
-  github: "https://github.com/Wdickson11" # Corrigi para Wdickson11
-  email: "will.menezes@pm.me"
-social_links:
-  linkedin: "https://www.linkedin.com/in/williamdmenezes"
-  github: "https://github.com/Wdickson1"
+  github: "https://github.com/Wdickson11"
   email: "will.menezes@pm.me"
