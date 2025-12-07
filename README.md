@@ -66,9 +66,7 @@ Aqui você encontrará meus projetos, relatórios de pentest, artigos e conquist
 ---
 
 ## 🌐 Contribuições Públicas
-- Artigo: *Como identificar SQL Injection em aplicações modernas* (Medium)  
-- Write-up: *CTF TryHackMe – RootMe*  
-- Palestra: *Introdução ao Pentest* (Roadsec 2025)  
+
 
 ---
 
