@@ -1,0 +1,30 @@
+# Site settings
+title: "William Menezes – Cybersecurity Portfolio"
+description: "Portfólio profissional em Segurança da Informação | Professional Cybersecurity Portfolio"
+author: "William Menezes"
+
+# URL base (GitHub Pages gera automaticamente)
+baseurl: "" 
+url: "https://seuusuario.github.io/portfolio-seguranca"
+
+# Theme (escolha entre: minimal, cayman, slate, merlot, etc.)
+theme: minimal
+
+# Navegação personalizada
+navbar:
+  - name: "Home"
+    link: "/"
+  - name: "Português 🇧🇷"
+    link: "/pt/"
+  - name: "English 🇺🇸"
+    link: "/en/"
+  - name: "Projects"
+    link: "/projects/"
+  - name: "Reports"
+    link: "/projects/reports/"
+
+# Social links (opcional)
+social_links:
+  linkedin: "https://www.linkedin.com/in/williamdmenezes"
+  github: "https://github.com/Wdickson1"
+  email: "will.menezes@pm.me"
