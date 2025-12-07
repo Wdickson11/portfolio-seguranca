@@ -8,7 +8,7 @@ baseurl: "/portfolio-seguranca" # Adiciona o nome do repositório como base
 url: "https://wdickson11.github.io" 
 
 # Theme (escolha entre: minimal, cayman, slate, merlot, etc.)
-#theme: minimal
+theme: minimal-mistakes-jekyll
 
 # Navegação personalizada
 navbar:
