@@ -20,7 +20,7 @@ Here you will find my projects, penetration test reports, articles, and achievem
 - **University Extension:** DPO Master (Data Protection Officer) 
 
 ### 📜 Professional Certificates
-- **International Certifications:** * [Add your international certifications here, e.g., CompTIA Security+, CEH, etc.]
+- **International Certifications:** * 
 
 - **Practical Certificates (Labs and Platforms):** - Advent of Cyber 2024 – TryHackMe 
   - **LetsDefend Certificates (Blue Team/SOC Focus):** - Programming for Cybersecurity
