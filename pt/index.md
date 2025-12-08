@@ -7,7 +7,7 @@ Aqui você encontrará meus projetos, relatórios de pentest, artigos e conquist
 
 ## 👤 Sobre Mim
 - **Nome:** William Menezes
-- Cargo atual: Supervisor de TI
+- **Cargo atual**: Supervisor de TI
 - **Título:** Pentester | Consultor em Segurança da Informação  
 - **Resumo:** Profissional focado em testes de invasão, análise de vulnerabilidades ,segurança ofensiva e defensiva. Experiência prática em ambientes corporativos e laboratórios virtuais.  
 - **Contato:** [LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1) | Email: will.menezes@pm.me  
