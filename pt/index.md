@@ -9,7 +9,7 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre m
 - **Cargo Atual:** Supervisor de TI & GRC
 - **Foco Técnico:** Analista de Segurança da Informação (Blue & Red Team)
 - **Resumo Executivo:** Especialista com sólida vivência na liderança de infraestruturas críticas e processos de Governança, Risco e Compliance. Atualmente, responsável pela manutenção da certificação **ISO 27001**, gestão de vulnerabilidades e implementação de controles de privacidade de dados (DPO). Unindo visão estratégica de negócio à execução técnica em segurança ofensiva e defensiva.
-- **Contato:** [LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1) | Email: will.menezes@pm.me
+- **Contato:** [LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1) | Email: will.menezes@proton.me
 
 ---
 
