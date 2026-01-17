@@ -1,6 +1,6 @@
 # 🛡️ Portfólio de Segurança da Informação | William Menezes
 
-Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre minha trajetória de 23 anos em gestão de TI e minha especialização técnica em Cybersecurity.
+Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre minha trajetória de 23 anos em TI e minha especialização técnica em Cybersecurity.
 
 ---
 
