@@ -45,7 +45,6 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre m
 - **Descrição:** Simulação de exploração e posterior correção de vulnerabilidades em ambiente AD corporativo, focando em escalada de privilégios.
 - **Ferramentas:** BloodHound, Mimikatz, PowerShell.
 - **Resultado:** Implementação de políticas de menor privilégio e mitigação de caminhos de ataque até Domain Admin.
-- **Ler Artigo:** [Sysmon Threat Hunter](2026-01-29-sysmon-threat-hunting.md)
 - **Relatório:** [Visualizar Write-up](projetos/active-directory.md)
 
 ### 🔍 Projeto 2 – Teste de Invasão Web & Remediação
@@ -53,6 +52,13 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre m
 - **Ferramentas:** Burp Suite, Nmap, SQLmap.
 - **Resultado:** Identificação de SQLi e XSS com propostas de correção para o time de desenvolvimento.
 - **Relatório:** [Visualizar Write-up](projetos/web-pentest.md)
+
+## 📝 Artigos Técnicos & Estudos de Caso
+
+### 🕵️‍♂️ Engenharia de Detecção: Sysmon Threat Hunting
+- **Foco:** Blue Team & Visibilidade de Endpoint
+- **Resumo:** Estudo prático sobre como superar a cegueira dos logs nativos do Windows para detectar técnicas avançadas (como acesso ao LSASS e C2 Beacons) em cenários de Home Office.
+- **Ler Estudo Completo:** [Acessar Artigo](2026-01-29-sysmon-threat-hunting.md)
 
 ---
 
