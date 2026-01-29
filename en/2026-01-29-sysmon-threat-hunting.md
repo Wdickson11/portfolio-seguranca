@@ -1,98 +1,56 @@
 ---
 layout: post
-title: "Amplifying Endpoint Visibility: Threat Detection with Sysmon"
+title: "Detection Engineering: Amplifying Endpoint Visibility with Sysmon"
 date: 2026-01-29
-categories: [Blue Team, Endpoint Security, Logging]
-tags: [Sysmon, Threat Hunting, SOC, Windows]
-description: "A technical analysis on leveraging Microsoft Sysmon to overcome native Windows logging limitations and detect advanced malicious behaviors."
+categories: [Blue Team, Detection Engineering, Scripting]
+tags: [Sysmon, Action1, PowerShell, Threat Hunting, MITRE ATT&CK]
+description: "From deployment to detection: How I implemented Sysmon at scale via RMM, created custom threat hunting rules, and validated telemetry without impacting production."
 ---
 
 # 🕵️‍♂️ Amplifying Visibility: Threat Detection with Sysmon
 
-In a modern corporate environment, especially in remote work (Home Office) scenarios, endpoint visibility is the thin line between a contained incident and a full-scale data breach.
+In modern corporate environments, especially in remote work scenarios (*Home Office*), endpoint visibility is the thin line between a contained incident and a full-scale data breach.
 
-Native Windows logs (Event Viewer) are essential but often insufficient to answer critical SOC questions like: *"Which process initiated this network connection?"* or *"What exactly did that PowerShell script execute?"*
+Native Windows logs are vital but often suffer from "technical blindness" when correlating complex events. Questions like *"Which parent process initiated this connection?"* or *"Was there code injection into LSASS memory?"* are difficult to answer using only the standard Event Viewer.
 
-This project explores the implementation and analysis of **Sysmon (System Monitor)** from Microsoft Sysinternals as a primary telemetry tool for *Threat Hunting*.
-
----
-
-## 🎯 Project Objectives
-
-Demonstrate the capability to:
-1.  Install and configure Sysmon to filter noise and focus on high-fidelity security events.
-2.  Map common malicious activities (Malware Droppers, C2 Connections, Lateral Movement).
-3.  Correlate events to build a comprehensive attack narrative.
+This project details the implementation of **Sysmon (System Monitor)** as a primary telemetry sensor, orchestrated via **Action1 RMM**.
 
 ---
 
-## 🛠️ Tools & Configuration
+## 🎯 Engineering Objectives
 
-* **Tool:** Sysmon v15.0 (Microsoft Sysinternals)
-* **Base Configuration:** [SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config) (Industry standard for high-fidelity and low-noise logging).
-* **Lab Environment:** Windows 10 Enterprise & TryHackMe Sandbox.
-* **Deployment (Simulation):** RMM automation (Action1/PowerShell) for remote endpoints.
-
----
-
-## 🔍 Native Logging Blindness vs. Sysmon
-
-Sysmon's main advantage is granularity. Below, I detail the most critical **Event IDs** monitored during this study and why they are vital for a SOC Analyst.
-
-### 1. Process Creation (Event ID 1) - The "Digital Footprint"
-Unlike native Windows Event 4688, Sysmon ID 1 provides the **File Hash** (MD5/SHA256) and the full **Command Line** by default.
-
-> **Detection Scenario:** A user opens a malicious PDF that executes a hidden script.
-> * **Native Log:** Shows that Acrobat Reader was opened.
-> * **Sysmon:** Shows that `AcroRd32.exe` spawned `cmd.exe` with the argument `/c powershell.exe -enc <base64_payload>`.
-> * **Technical Insight:** The *ParentProcess* vs. *Image* (Child) relationship is the strongest indicator of anomaly. Office apps or PDF readers should not be spawning command-line shells.
-
-### 2. Network Connection (Event ID 3) - The "Beacon"
-Maps which specific process initiated a TCP/UDP connection. This is crucial for detecting *Command & Control (C2)* traffic.
-
-> **Detection Scenario:** A malware attempts to communicate with an external C2 server.
-> * **Sysmon:** Records that a (spoofed) `svchost.exe` initiated a connection to IP `185.x.x.x` on port 443.
-> * **SOC Value:** Allows analysts to correlate network traffic directly to the infected executable, something perimeter firewalls cannot do on encrypted traffic without host-side telemetry.
-
-### 3. DNS Query (Event ID 22) - The "Signature"
-Many malwares use DGA (Domain Generation Algorithms) or connect to newly registered domains (NRDs).
-
-> **Detection Scenario:** Ransomware attempting to download encryption keys.
-> * **Sysmon:** Logs a query for `urgent-invoice-payment[.]com`.
-> * **Action:** Immediate domain blocking and isolation of the originating machine.
+1.  **Automated Deployment:** Install Sysmon at scale with high-fidelity configuration (*Infrastructure as Code*).
+2.  **Credential Dumping Monitoring:** Detect password theft techniques (MITRE ATT&CK T1003).
+3.  **Safe Validation:** Test the effectiveness of alerts without introducing real malware or disrupting critical services.
 
 ---
 
-## 🧪 Practical Case Study (Simulation)
+## 🛠️ Solution Architecture
 
-Using controlled malware samples (based on TryHackMe methodology and real-world attack patterns), I analyzed the execution chain of a **Mimikatz** credential theft attempt.
-
-**Sysmon Event Chain Identified:**
-
-1.  **Event ID 1:** `powershell.exe` executed with administrative privileges.
-2.  **Event ID 10 (Process Access):** PowerShell accessed the memory of the `lsass.exe` process (Local Security Authority Subsystem Service).
-    * *Technical Note:* `lsass.exe` is where Windows stores credentials. Only system processes should ever touch it.
-3.  **Event ID 11 (File Create):** Creation of `mimikatz.log` in the `C:\Temp` directory.
-
-**Conclusion:**
-Detection rules (Sigma or YARA) should focus on **Event ID 10**, alerting whenever a non-system process attempts to read `lsass.exe` memory.
+* **Sensor:** Sysmon v15.0 (Microsoft Sysinternals).
+* **Configuration:** [SwiftOnSecurity Config](https://github.com/SwiftOnSecurity/sysmon-config) (Industry standard for noise reduction).
+* **Orchestration:** Action1 RMM (Deployment and Script Execution).
+* **Language:** PowerShell 5.1+.
 
 ---
 
-## 🚀 Deployment Challenges at Scale
+## 🚀 Phase 1: Automated Deployment (IaC)
 
-During this study, I identified that Sysmon’s greatest challenge is not installation, but **log management**.
+The biggest challenge isn't installing Sysmon, but ensuring the **XML configuration** is correctly applied to avoid saturating disk space with useless logs. I used a PowerShell script packaged in Action1 to ensure installation integrity.
 
-* **Data Volume:** Sysmon is verbose. Without a properly tuned XML configuration (excluding browser noise, Windows updates), it can saturate local disk space or SIEM ingest limits.
-* **Collection Strategy:** In hybrid environments, I recommend using *Windows Event Forwarding (WEF)* or modern agents (such as Elastic Agent or Wazuh) to send these logs to a centralized cloud-based analysis platform.
+**Installation Script Snippet:**
 
----
+```powershell
+# Automated Installation and Configuration
+$SysmonBinary = "Sysmon64.exe"
+$ConfigFile = "sysmonconfig-export.xml"
 
-## 💡 Conclusion
-
-Sysmon transforms endpoints from "black boxes" into high-fidelity sensors. For a Defensive Security professional, mastering the interpretation of these logs is fundamental to reducing **MTTD (Mean Time to Detect)**.
-
-This project reinforced my ability to understand internal Windows OS behavior and translate attacker actions into actionable security alerts.
-
----
-*Tags: #BlueTeam #Sysmon #ThreatHunting #CyberSecurity #DigitalForensics*
+if (Test-Path $SysmonBinary -and Test-Path $ConfigFile) {
+    Write-Output "Applying high-fidelity configuration..."
+    # -i: Installs/Updates configuration
+    # -accepteula: Automatically accepts terms
+    Start-Process -FilePath ".\$SysmonBinary" -ArgumentList "-accepteula -i $ConfigFile" -Wait
+    Write-Output "Sysmon deployed successfully."
+} else {
+    Write-Error "Configuration files not found."
+}
