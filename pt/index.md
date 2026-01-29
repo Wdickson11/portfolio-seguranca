@@ -45,7 +45,7 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre m
 - **Descrição:** Simulação de exploração e posterior correção de vulnerabilidades em ambiente AD corporativo, focando em escalada de privilégios.
 - **Ferramentas:** BloodHound, Mimikatz, PowerShell.
 - **Resultado:** Implementação de políticas de menor privilégio e mitigação de caminhos de ataque até Domain Admin.
-- **Ler Artigo:** [Acessar Estudo Completo](2026-01-29-sysmon-threat-hunting.md)
+- **Ler Artigo:** [Sysmon Threat Hunter](2026-01-29-sysmon-threat-hunting.md)
 - **Relatório:** [Visualizar Write-up](projetos/active-directory.md)
 
 ### 🔍 Projeto 2 – Teste de Invasão Web & Remediação
