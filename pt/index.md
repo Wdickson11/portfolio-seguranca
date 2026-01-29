@@ -45,13 +45,11 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência entre m
 - **Descrição:** Simulação de exploração e posterior correção de vulnerabilidades em ambiente AD corporativo, focando em escalada de privilégios.
 - **Ferramentas:** BloodHound, Mimikatz, PowerShell.
 - **Resultado:** Implementação de políticas de menor privilégio e mitigação de caminhos de ataque até Domain Admin.
-- **Relatório:** [Visualizar Write-up](projetos/active-directory.md)
 
 ### 🔍 Projeto 2 – Teste de Invasão Web & Remediação
 - **Descrição:** Pentest em aplicação de e-commerce seguindo a metodologia OWASP Top 10.
 - **Ferramentas:** Burp Suite, Nmap, SQLmap.
 - **Resultado:** Identificação de SQLi e XSS com propostas de correção para o time de desenvolvimento.
-- **Relatório:** [Visualizar Write-up](projetos/web-pentest.md)
 
 ## 📝 Artigos Técnicos & Estudos de Caso
 
