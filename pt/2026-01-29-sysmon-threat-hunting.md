@@ -55,17 +55,17 @@ if (Test-Path $SysmonBinary -and Test-Path $ConfigFile) {
     Write-Error "Arquivos de configuração não encontrados."
 }
 
-## 🔍 Phase 2: Detection Logic (Threat Hunting)
+## 🔍 Fase 2: Lógica de Detecção (Threat Hunting)
 
-The focus of this study was the **OS Credential Dumping: LSASS Memory (T1003.001)** technique. Tools like *Mimikatz* attempt to read the memory of the `lsass.exe` process to extract NTLM hashes or Kerberos tickets.
+O foco deste estudo foi a técnica **OS Credential Dumping: LSASS Memory (T1003.001)**. Ferramentas como o *Mimikatz* tentam ler a memória do processo `lsass.exe` para extrair hashes NTLM ou tickets Kerberos.
 
-Sysmon generates **Event ID 10 (ProcessAccess)** when this occurs. I developed a resilient *Hunting* script that handles empty log errors and focuses strictly on the critical target.
+O Sysmon gera o **Event ID 10 (ProcessAccess)** quando isso ocorre. Desenvolvi um script de *Hunting* resiliente, que trata erros de logs vazios e foca apenas no alvo crítico.
 
-**Detection Script (Production Version):**
+**Script de Detecção (Versão de Produção):**
 
 ```powershell
-# Search for LSASS access events in the last hour
-# ErrorAction SilentlyContinue prevents failure if no logs exist (Safe)
+# Busca eventos de acesso ao LSASS na última hora
+# ErrorAction SilentlyContinue impede falhas se não houver registros (Safe)
 $Events = Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -FilterXPath "*[System[(EventID=10)]]" -ErrorAction SilentlyContinue
 
 if ($Events) {
@@ -74,19 +74,19 @@ if ($Events) {
         $Target = $Xml.Event.EventData.Data | Where-Object {$_.Name -eq "TargetImage"} | Select-Object -ExpandProperty "#text"
         $Source = $Xml.Event.EventData.Data | Where-Object {$_.Name -eq "SourceImage"} | Select-Object -ExpandProperty "#text"
         
-        # Detection: Is the target LSASS?
+        # Detecção: Alvo é o LSASS?
         if ($Target -like "*\lsass.exe") {
-            # Whitelist: Ignore Antivirus and System Processes
+            # Whitelist: Ignorar Antivírus e Processos do Sistema
             if ($Source -notmatch "MsMpEng.exe|svchost.exe|csrss.exe") {
-                Write-Output "CRITICAL ALERT: LSASS Access Attempt Detected!"
-                Write-Output "Attacker: $Source"
-                Write-Output "Target: $Target"
-                Write-Output "Date: $($Event.TimeCreated)"
+                Write-Output "CRITICAL ALERT: Tentativa de Acesso ao LSASS Detectada!"
+                Write-Output "Atacante: $Source"
+                Write-Output "Alvo: $Target"
+                Write-Output "Data: $($Event.TimeCreated)"
             }
         }
     }
 } else {
-    Write-Output "Safe: No anomalies detected in the period."
+    Write-Output "Safe: Nenhuma anomalia detectada no período."
 }
 
 ## 🧪 Fase 3: Validação e Prova de Conceito (PoC)
