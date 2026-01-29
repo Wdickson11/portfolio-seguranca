@@ -58,7 +58,7 @@ Welcome to my professional portfolio. Here, I showcase the convergence of my 23-
 ### 🕵️‍♂️ Detection Engineering: Sysmon Threat Hunting
 - **Focus:** Blue Team & Endpoint Visibility
 - **Summary:** A practical study on overcoming native Windows logging blindness to detect advanced techniques (such as LSASS access and C2 Beacons) in remote work environments.
-- **Read Full Article:** [Access Article](en/en/2026-01-29-sysmon-threat-hunting.md)
+- **Read Full Article:** [Access Article](2026-01-29-sysmon-threat-hunting.md)
 ---
 
 ## 📚 Technical Library & Study Roadmap
