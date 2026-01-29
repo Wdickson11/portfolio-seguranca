@@ -45,14 +45,20 @@ Welcome to my professional portfolio. Here, I showcase the convergence of my 23-
 - **Description:** Simulation of exploitation and subsequent remediation of vulnerabilities in a corporate AD environment, focusing on privilege escalation.
 - **Tools:** BloodHound, Mimikatz, PowerShell.
 - **Outcome:** Implementation of least privilege policies and mitigation of attack paths leading to Domain Admin.
-- **Report:** [View Write-up](projetos/active-directory.md)
 
 ### 🔍 Project 2 – Web Application Pentesting & Remediation
 - **Description:** Pentest on an e-commerce application following the OWASP Top 10 methodology.
 - **Tools:** Burp Suite, Nmap, SQLmap.
 - **Outcome:** Identification of SQLi and XSS vulnerabilities with remediation proposals for the development team.
-- **Report:** [View Write-up](projetos/web-pentest.md)
 
+---
+
+## 📝 Technical Articles & Case Studies
+
+### 🕵️‍♂️ Detection Engineering: Sysmon Threat Hunting
+- **Focus:** Blue Team & Endpoint Visibility
+- **Summary:** A practical study on overcoming native Windows logging blindness to detect advanced techniques (such as LSASS access and C2 Beacons) in remote work environments.
+- **Read Full Article:** [Access Article](2026-01-29-sysmon-threat-hunting.md)
 ---
 
 ## 📚 Technical Library & Study Roadmap
