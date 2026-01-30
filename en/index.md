@@ -39,7 +39,7 @@ Welcome to my professional portfolio. Here, I showcase the strategic convergence
 - **Impact:** Elimination of "technical blindness" from native logs, enabling the correlation of complex events such as code injection and LSASS memory access.
 - **Technologies:** PowerShell, XML (SwiftOnSecurity config), Action1 RMM.
 - **MITRE Mapping:** Focused on **OS Credential Dumping (T1003.001)** technique.
-- [Access Full Case Study](en/sysmon-threat-hunting-en.md)
+- [Access Full Case Study](sysmon-threat-hunting.md)
 
 ### 🏗️ Active Directory Hardening & Auditing
 - **Description:** Auditing and remediation of vulnerabilities within a corporate Active Directory environment.
