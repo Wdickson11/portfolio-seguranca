@@ -22,6 +22,7 @@ Este projeto detalha a implementação do **Sysmon (System Monitor)** como senso
 1.  **Deploy Automatizado:** Instalar o Sysmon em escala com configuração de alta fidelidade (*Infrastructure as Code*).
 2.  **Monitoramento de Credential Dumping:** Detectar técnicas de roubo de senhas (T1003 do MITRE ATT&CK).
 3.  **Validação Segura:** Testar a eficácia dos alertas sem introduzir malware real ou derrubar serviços críticos.
+4.  **Resposta Automática (SOAR Lite):** Implementar scripts de contenção imediata para interromper ataques em tempo real.
 
 ---
 
@@ -40,28 +41,36 @@ O maior desafio não é instalar o Sysmon, mas garantir que a **configuração X
 
 **Snippet do Script de Instalação:**
 ```powershell
-# Script: Deploy-Sysmon-Config.ps1
-# Função: Instalar Sysmon com configuração de alta fidelidade
-# Autor: William Dickson
+# 0. Forçar TLS 1.2 para garantir o download (Resolve o erro de conexão garantindo o uso do TLS 1.2)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$SysmonBinary = "Sysmon64.exe"
-$ConfigFile = "sysmonconfig-export.xml"
+$SysmonURL = "https://download.sysinternals.com/files/Sysmon.zip"
+$ConfigURL = "https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml"
+$DestDir = "C:\Temp\SysmonInstall"
 
-Write-Output ">>> INICIANDO DEPLOY DO SYSMON <<<"
+if (!(Test-Path $DestDir)) { New-Item -Path $DestDir -ItemType Directory -Force }
 
-if (Test-Path $SysmonBinary -and Test-Path $ConfigFile) {
-    Write-Output "1. Arquivos encontrados. Aplicando configuração..."
-    
-    # -i: Instala ou Atualiza a configuração
-    # -accepteula: Aceita os termos automaticamente
-    try {
-        Start-Process -FilePath ".\$SysmonBinary" -ArgumentList "-accepteula -i $ConfigFile" -Wait -NoNewWindow
-        Write-Output "✅ SUCESSO: Sysmon implantado/atualizado."
-    } catch {
-        Write-Error "❌ ERRO: Falha na execução do binário."
+try {
+    Write-Output "Baixando configuração e binários..."
+    # Usando -UseBasicParsing para evitar erros em servidores sem IE configurado
+    Invoke-WebRequest -Uri $ConfigURL -OutFile "$DestDir\config.xml" -UseBasicParsing
+    Invoke-WebRequest -Uri $SysmonURL -OutFile "$DestDir\Sysmon.zip" -UseBasicParsing
+
+    Write-Output "Extraindo Sysmon..."
+    Expand-Archive -Path "$DestDir\Sysmon.zip" -DestinationPath $DestDir -Force
+
+    Write-Output "Instalando..."
+    # Usar o caminho completo para evitar erro de CommandNotFound
+    Start-Process -FilePath "$DestDir\Sysmon64.exe" -ArgumentList "-accepteula -i $DestDir\config.xml" -Wait -NoNewWindow
+
+    Start-Sleep -Seconds 5
+    if (Get-Service "Sysmon64" -ErrorAction SilentlyContinue) {
+        Write-Output "✅ SUCESSO: Sysmon Instalado e Rodando!"
+    } else {
+        throw "Serviço não iniciou."
     }
-} else {
-    Write-Error "❌ ERRO CRÍTICO: Binário ou XML de configuração não encontrados no diretório atual."
+} catch {
+    Write-Error "❌ ERRO: $_"
 }
 ```
 
@@ -79,24 +88,22 @@ O Sysmon gera o **Event ID 10 (ProcessAccess)** quando isso ocorre. Desenvolvi u
 # Função: Instalar Sysmon com configuração de alta fidelidade
 # Autor: William Dickson
 
-$SysmonBinary = "Sysmon64.exe"
-$ConfigFile = "sysmonconfig-export.xml"
+# Script: Detect-CredentialDumping-LSASS.ps1
+$LogName = "Microsoft-Windows-Sysmon/Operational"
+$StartTime = (Get-Date).AddMinutes(-60)
+$WhiteList = "MsMpEng.exe|svchost.exe|csrss.exe|Topaz OFD|Warsaw"
 
-Write-Output ">>> INICIANDO DEPLOY DO SYSMON <<<"
+$Events = Get-WinEvent -FilterHashtable @{LogName=$LogName; ID=10; StartTime=$StartTime} -ErrorAction SilentlyContinue 
 
-if (Test-Path $SysmonBinary -and Test-Path $ConfigFile) {
-    Write-Output "1. Arquivos encontrados. Aplicando configuração..."
+foreach ($Event in $Events) {
+    $Xml = [xml]$Event.ToXml()
+    $Source = ($Xml.Event.EventData.Data | Where-Object {$_.Name -eq "SourceImage"})."#text"
     
-    # -i: Instala ou Atualiza a configuração
-    # -accepteula: Aceita os termos automaticamente
-    try {
-        Start-Process -FilePath ".\$SysmonBinary" -ArgumentList "-accepteula -i $ConfigFile" -Wait -NoNewWindow
-        Write-Output "✅ SUCESSO: Sysmon implantado/atualizado."
-    } catch {
-        Write-Error "❌ ERRO: Falha na execução do binário."
+    if ($Source -notmatch $WhiteList) {
+        Write-Output "🚨 CRITICAL ALERT: LSASS Access Attempt Detected by $Source"
+        # Sinaliza para o Action1 que um incidente foi encontrado
+        $FoundIncident = $true
     }
-} else {
-    Write-Error "❌ ERRO CRÍTICO: Binário ou XML de configuração não encontrados no diretório atual."
 }
 ```
 
@@ -155,9 +162,28 @@ try {
     Write-Output "⚠️ ERRO DE VALIDAÇÃO: Falha ao acessar logs do Sysmon."
 }
 ```
+## ⚡ Fase 4: Resposta Automática e Contenção
+Diferente de um log estático, esta fase utiliza o Action1 para encerrar o processo agressor assim que a ameaça é detectada, minimizando o tempo de exposição.
 
-> **Insight Operacional:** Essa metodologia permite testar toda a cadeia de defesa (Sensor -> Log -> Script -> Alerta) garantindo que, quando o ataque real ocorrer no LSASS, o alerta funcionará.
+Script de Resposta Automática:
+```powershell
+# Script: Auto-Containment-LSASS.ps1
+# Função: Identificar e encerrar processos não autorizados tentando acessar o LSASS
 
+if ($FoundIncident) {
+    Write-Output "🛠️ INICIANDO RESPOSTA AUTOMÁTICA..."
+    
+    # Exemplo: Encerrar o processo que disparou o alerta (capturado pelo script de detecção)
+    try {
+        Stop-Process -Name $SuspectProcessName -Force -ErrorAction Stop
+        Write-Output "✅ SUCESSO: Processo $SuspectProcessName encerrado preventivamente."
+    } catch {
+        Write-Output "⚠️ FALHA: Não foi possível encerrar o processo. Iniciando Isolamento de Rede..."
+        # Comando para isolar a máquina via firewall (exemplo)
+        netsh advfirewall set allprofiles state off # (Uso ilustrativo de política de bloqueio)
+    }
+}
+```
 ---
 
 ## 💡 Conclusão e Próximos Passos
@@ -167,7 +193,7 @@ A implementação do Sysmon transformou a postura de segurança dos endpoints. P
 **Lições Aprendidas:**
 * **Resiliência de Script:** Scripts de automação devem estar preparados para logs vazios (`$null`) e falhas de leitura, evitando falsos positivos de erro operacional.
 * **Auto-Healing:** Em ambientes de teste intenso, o arquivo `.evtx` pode corromper. A criação de scripts de manutenção (Restart Service/Clear Logs) é essencial para manter a telemetria ativa.
-* **Whitelisting é Vital:** Sem filtrar processos legítimos (como Antivírus e System), o volume de dados torna o monitoramento inviável.
+* **Refinamento de Fidelidade (Whitelisting): A exclusão de processos legítimos e conhecidos — como assinaturas de Antivírus, processos críticos de Sistema e plugins de segurança bancária (ex: Warsaw/Topaz) — é fundamental. Sem esse ajuste fino, o ruído analítico compromete a viabilidade do monitoramento, gerando fadiga de alertas e ocultando incidentes reais sob falsos positivos
 
 **Roadmap:**
 1.  **Expandir Cobertura:** Implementar detecções para *Process Injection* (T1055) e *Scheduled Tasks* (T1053).
