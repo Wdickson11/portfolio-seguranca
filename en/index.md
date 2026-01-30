@@ -1,86 +1,67 @@
-# 🛡️ Information Security Portfolio | William Menezes
+# 🛡️ Cybersecurity & Privacy Leader | William Menezes
 
-Welcome to my professional portfolio. Here, I showcase the convergence of my 23-year career in IT Management with my technical specialization in Cybersecurity.
+Welcome to my professional portfolio. Here, I showcase the strategic convergence of my 23-year career in Information Technology with my technical expertise in Information Security and GRC (Governance, Risk, and Compliance).
 
 ---
 
-## 👤 About Me
+## 👤 Executive Summary
 
-- **Current Role:** IT Supervisor & GRC Specialist
-- **Technical Focus:** Information Security Analyst (Blue & Red Team)
-- **Executive Summary:** Senior professional with extensive experience leading critical IT infrastructures and Governance, Risk, and Compliance (GRC) processes. Currently responsible for maintaining **ISO 27001** certification, vulnerability management, and implementing data privacy controls (DPO). I bridge the gap between strategic business vision and technical execution in offensive and defensive security.
-- **Contact:** [LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1) | Email: will.menezes@proton.me
+- **Current Role:** IT Supervisor & Data Protection Officer (DPO).
+- **Core Focus:** Information Security Leadership, Governance, Risk, and Compliance (GRC).
+- **Strategic Vision:** A specialist with extensive experience leading critical infrastructure and managing cyber risks. Currently responsible for maintaining **ISO 27001** compliance, vulnerability lifecycle management, and implementing data privacy controls in accordance with LGPD (Brazilian General Data Protection Law). I bridge the gap between 23 years of IT foundation and high-end technical execution in defensive security and detection engineering.
 
 ---
 
 ## 🎓 Education & Specializations
 
-- **Post-Graduate:** Cloud Computing with Artificial Intelligence (XP Educação)
-- **Extension:** DPO Master - Data Protection Officer (FaCiencia)
-- **Degree:** B.S. in Information Security Technology (FMU)
+- **Postgraduate Degree:** Cloud Computing with Artificial Intelligence (XP Educação).
+- **Executive Extension:** DPO Master - Data Protection Officer (FaCiencia).
+- **Bachelor’s Degree:** Information Security Technology (FMU).
 
-### 📜 Professional Certifications & Badges
+### 📜 Certifications & Badges
 
-- **Security & Frameworks:**
+- **Strategy & Defense:**
   - Foundations of Operationalizing MITRE ATT&CK – AttackIQ
   - Proofpoint Certified Ransomware Specialist 2025
   - Cybersecurity Awareness – CAPC – CertiProf
-  - APISEC|CON 2025
 
-- **SOC & Blue Team (LetsDefend & TryHackMe):**
-  - SOC Analyst Learning Path
+- **Security Operations (SOC & Blue Team):**
+  - SOC Analyst Learning Path (LetsDefend)
   - Detection Engineering Learning Path
-  - Programming for Cybersecurity
-  - Advent of Cyber 2024 (THM)
-
-- **In Progress:**
-  - TryHackMe: SOC Level 1 Path
-  - LetsDefend: Malware Analysis Skill Path
+  - Advent of Cyber 2024 (TryHackMe)
 
 ---
 
-## 💻 Technical Projects
+## 💻 Security Engineering Projects
 
-### 🛡️ Project 1 – Active Directory Hardening & Audit
-- **Description:** Simulation of exploitation and subsequent remediation of vulnerabilities in a corporate AD environment, focusing on privilege escalation.
+### 🕵️‍♂️ Detection Engineering: Endpoint Visibility with Sysmon
+- **Description:** Implementation of Sysmon v15.0 as a primary telemetry sensor, orchestrated via Action1 RMM for large-scale monitoring.
+- **Impact:** Elimination of "technical blindness" from native logs, enabling the correlation of complex events such as code injection and LSASS memory access.
+- **Technologies:** PowerShell, XML (SwiftOnSecurity config), Action1 RMM.
+- **MITRE Mapping:** Focused on **OS Credential Dumping (T1003.001)** technique.
+- [Access Full Case Study](en/sysmon-threat-hunting-en.md)
+
+### 🏗️ Active Directory Hardening & Auditing
+- **Description:** Auditing and remediation of vulnerabilities within a corporate Active Directory environment.
+- **Impact:** Significant reduction of the attack surface by eliminating critical privilege escalation paths to Domain Admin.
 - **Tools:** BloodHound, Mimikatz, PowerShell.
-- **Outcome:** Implementation of least privilege policies and mitigation of attack paths leading to Domain Admin.
-
-### 🔍 Project 2 – Web Application Pentesting & Remediation
-- **Description:** Pentest on an e-commerce application following the OWASP Top 10 methodology.
-- **Tools:** Burp Suite, Nmap, SQLmap.
-- **Outcome:** Identification of SQLi and XSS vulnerabilities with remediation proposals for the development team.
 
 ---
 
-## 📝 Technical Articles & Case Studies
+## ⚖️ Governance, Risk, and Compliance (GRC)
 
-### 🕵️‍♂️ Detection Engineering: Sysmon Threat Hunting
-- **Focus:** Blue Team & Endpoint Visibility
-- **Summary:** A practical study on overcoming native Windows logging blindness to detect advanced techniques (such as LSASS access and C2 Beacons) in remote work environments.
-- **Read Full Article:** [Access Article](2026-01-29-sysmon-threat-hunting.md)
----
-
-## 📚 Technical Library & Study Roadmap
-
-I believe in continuous learning through industry-standard literature (Wiley, O'Reilly, No Starch Press). My current theoretical foundation includes:
-
-| Category | Book Title | Status |
-| :--- | :--- | :--- |
-| **Strategy** | Attack Surface Management | 📖 Reading |
-| **Career** | Hack the Cybersecurity Interview | 🎯 Next |
-| **Defense** | Cybersecurity Blue Team Strategies | 📋 Waitlist |
-| **Cloud** | Pentesting Azure Applications | 📋 Waitlist |
-| **Processes** | Secrets and Lies: Digital Security in a Networked World | ✅ Completed |
+As a **DPO and Security Lead**, I operate at the strategic layer that protects business value:
+- **ISO 27001:** Control management and maintenance of international certification.
+- **Privacy (LGPD):** Implementation of privacy policies and incident response frameworks with a focus on legal compliance.
+- **Vulnerability Management:** Coordinating the identification, prioritization (CVSS), and remediation cycle for critical assets.
 
 ---
 
-## 📊 Personal Roadmap
+## 📊 Technical Evolution Roadmap
 
-- **Short Term (6 months):** Complete SOC Level 1 path; achieve B2/C1 English proficiency focused on Technical/Business communication.
-- **Medium Term (12 months):** Obtain Microsoft SC-200 or AWS Certified Security – Specialty certification.
-- **Long Term (2-3 years):** Lead **Purple Team** strategies and Cyber Resilience projects in multinational environments.
+- **6 Months:** Elevate business English proficiency to B2/C1 level and complete the Microsoft SC-200 certification.
+- **12 Months:** Earn the AWS Certified Security – Specialty certification to consolidate cloud expertise.
+- **Long Term:** Transition into a CISO or Head of Security role in global environments, leading Purple Team strategies and Cyber Resilience.
 
 ---
-
-> ⚡ *This portfolio reflects my commitment to technical excellence and the protection of digital assets.*
+[LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1)
