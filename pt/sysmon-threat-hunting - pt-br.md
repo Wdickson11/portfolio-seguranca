@@ -84,11 +84,10 @@ O Sysmon gera o **Event ID 10 (ProcessAccess)** quando isso ocorre. Desenvolvi u
 
 **Script de Detecção (Versão de Produção):**
 ```powershell
-# Script: Deploy-Sysmon-Config.ps1
-# Função: Instalar Sysmon com configuração de alta fidelidade
-# Autor: William Dickson
-
 # Script: Detect-CredentialDumping-LSASS.ps1
+# Função: Instalar o Sysmon com configuração de alta fidelidade
+# Author: William Dickson
+
 $LogName = "Microsoft-Windows-Sysmon/Operational"
 $StartTime = (Get-Date).AddMinutes(-60)
 $WhiteList = "MsMpEng.exe|svchost.exe|csrss.exe|Topaz OFD|Warsaw"
@@ -162,6 +161,8 @@ try {
     Write-Output "⚠️ ERRO DE VALIDAÇÃO: Falha ao acessar logs do Sysmon."
 }
 ```
+
+---
 ## ⚡ Fase 4: Resposta Automática e Contenção
 Diferente de um log estático, esta fase utiliza o Action1 para encerrar o processo agressor assim que a ameaça é detectada, minimizando o tempo de exposição.
 
