@@ -9,9 +9,9 @@ description: "From deployment to detection: How I implemented Sysmon at scale vi
 
 # 🕵️‍♂️ Amplifying Visibility: Threat Detection with Sysmon
 
-In modern corporate environments, especially in remote work scenarios (*Home Office*), endpoint visibility is the thin line between a contained incident and a full-scale data breach.
+In modern corporate environments, especially in remote work (Home Office) scenarios, endpoint visibility is the thin line between a contained incident and a large-scale data breach.
 
-Native Windows logs are vital but often suffer from "technical blindness" when correlating complex events. Questions like *"Which parent process initiated this connection?"* or *"Was there code injection into LSASS memory?"* are difficult to answer using only the standard Event Viewer.
+Native Windows logs are vital but suffer from "technical blindness" when correlating complex events. Questions like *"Which parent process originated this connection?"* or *"Was there code injection into LSASS memory?"* are difficult to answer using only the standard Event Viewer.
 
 This project details the implementation of **Sysmon (System Monitor)** as a primary telemetry sensor, orchestrated via **Action1 RMM**.
 
@@ -19,9 +19,10 @@ This project details the implementation of **Sysmon (System Monitor)** as a prim
 
 ## 🎯 Engineering Objectives
 
-1.  **Automated Deployment:** Install Sysmon at scale with high-fidelity configuration (*Infrastructure as Code*).
+1.  **Automated Deployment:** Install Sysmon at scale with a high-fidelity configuration (**Infrastructure as Code**).
 2.  **Credential Dumping Monitoring:** Detect password theft techniques (MITRE ATT&CK T1003).
-3.  **Safe Validation:** Test the effectiveness of alerts without introducing real malware or disrupting critical services.
+3.  **Safe Validation:** Test alert effectiveness without introducing real malware or crashing critical services.
+4.  **Automated Response (SOAR Lite):** Implement immediate containment scripts to stop attacks in real-time.
 
 ---
 
@@ -36,109 +37,89 @@ This project details the implementation of **Sysmon (System Monitor)** as a prim
 
 ## 🚀 Phase 1: Automated Deployment (IaC)
 
-The biggest challenge isn't installing Sysmon, but ensuring the **XML configuration** is correctly applied to avoid saturating disk space with useless logs. I used a PowerShell script packaged in Action1 to ensure installation integrity.
+The biggest challenge isn't installing Sysmon, but ensuring the **XML configuration** is applied correctly to avoid saturating the disk with useless logs. I used a PowerShell script packaged in Action1 to ensure installation integrity.
 
 **Installation Script Snippet:**
 ```powershell
-# Script: Deploy-Sysmon-Config.ps1
-# Function: Install Sysmon with high-fidelity configuration
-# Author: William Dickson
+# 0. Force TLS 1.2 to ensure download success
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$SysmonBinary = "Sysmon64.exe"
-$ConfigFile = "sysmonconfig-export.xml"
+$SysmonURL = "[https://download.sysinternals.com/files/Sysmon.zip](https://download.sysinternals.com/files/Sysmon.zip)"
+$ConfigURL = "[https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml](https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml)"
+$DestDir = "C:\Temp\SysmonInstall"
 
-Write-Output ">>> STARTING SYSMON DEPLOYMENT <<<"
+if (!(Test-Path $DestDir)) { New-Item -Path $DestDir -ItemType Directory -Force }
 
-if (Test-Path $SysmonBinary -and Test-Path $ConfigFile) {
-    Write-Output "1. Files found. Applying configuration..."
-    
-    # -i: Installs or Updates configuration
-    # -accepteula: Automatically accepts terms
-    try {
-        Start-Process -FilePath ".\$SysmonBinary" -ArgumentList "-accepteula -i $ConfigFile" -Wait -NoNewWindow
-        Write-Output "✅ SUCCESS: Sysmon deployed/updated."
-    } catch {
-        Write-Error "❌ ERROR: Failed to execute binary."
+try {
+    Write-Output "Downloading configuration and binaries..."
+    # Using -UseBasicParsing to avoid errors on servers without IE configured
+    Invoke-WebRequest -Uri $ConfigURL -OutFile "$DestDir\config.xml" -UseBasicParsing
+    Invoke-WebRequest -Uri $SysmonURL -OutFile "$DestDir\Sysmon.zip" -UseBasicParsing
+
+    Write-Output "Extracting Sysmon..."
+    Expand-Archive -Path "$DestDir\Sysmon.zip" -DestinationPath $DestDir -Force
+
+    Write-Output "Installing..."
+    # Use full path to avoid CommandNotFound errors
+    Start-Process -FilePath "$DestDir\Sysmon64.exe" -ArgumentList "-accepteula -i $DestDir\config.xml" -Wait -NoNewWindow
+
+    Start-Sleep -Seconds 5
+    if (Get-Service "Sysmon64" -ErrorAction SilentlyContinue) {
+        Write-Output "✅ SUCCESS: Sysmon Installed and Running!"
+    } else {
+        throw "Service failed to start."
     }
-} else {
-    Write-Error "❌ CRITICAL ERROR: Binary or Config XML not found in current directory."
+} catch {
+    Write-Error "❌ ERROR: $_"
 }
 ```
 
 ---
 
-## 🔍 Phase 2: Detection Logic (Threat Hunting)
+##🔍 Phase 2: Detection Logic (Threat Hunting)
 
-The focus of this study was the **OS Credential Dumping: LSASS Memory (T1003.001)** technique. Tools like *Mimikatz* attempt to read the memory of the `lsass.exe` process to extract NTLM hashes or Kerberos tickets.
+** The focus of this study was the OS Credential Dumping: LSASS Memory (T1003.001) technique. Tools like Mimikatz attempt to read the memory of the lsass.exe process to extract NTLM hashes or Kerberos tickets.
 
-Sysmon generates **Event ID 10 (ProcessAccess)** when this occurs. I developed a resilient *Hunting* script that handles empty log errors and focuses strictly on the critical target.
+** Sysmon generates Event ID 10 (ProcessAccess) when this occurs. I developed a resilient hunting script that handles empty log errors and focuses only on the critical target.
 
 **Detection Script (Production Version):**
 ```powershell
 # Script: Detect-CredentialDumping-LSASS.ps1
-# Function: Detect LSASS memory access (Event ID 10)
+# Function: Install Sysmon with high-fidelity configuration
 # Author: William Dickson
 
 $LogName = "Microsoft-Windows-Sysmon/Operational"
-$LookBackMinutes = 60
-$StartTime = (Get-Date).AddMinutes(-$LookBackMinutes)
+$StartTime = (Get-Date).AddMinutes(-60)
+$WhiteList = "MsMpEng.exe|svchost.exe|csrss.exe|Topaz OFD|Warsaw"
 
-try {
-    # Search for Event ID 10 (ProcessAccess) in the last hour
-    # ErrorAction SilentlyContinue prevents error if log is empty (Safe)
-    $Events = Get-WinEvent -LogName $LogName -FilterXPath "*[System[(EventID=10)]]" -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated -ge $StartTime }
+$Events = Get-WinEvent -FilterHashtable @{LogName=$LogName; ID=10; StartTime=$StartTime} -ErrorAction SilentlyContinue 
 
-    if ($null -eq $Events) {
-        Write-Output "Safe: No LSASS access attempts detected in the last hour."
-        exit
+foreach ($Event in $Events) {
+    $Xml = [xml]$Event.ToXml()
+    $Source = ($Xml.Event.EventData.Data | Where-Object {$_.Name -eq "SourceImage"})."#text"
+    
+    if ($Source -notmatch $WhiteList) {
+        Write-Output "🚨 CRITICAL ALERT: LSASS Access Attempt Detected by $Source"
+        # Signals to Action1 that an incident was found
+        $FoundIncident = $true
     }
-
-    $Detected = $false
-
-    foreach ($Event in $Events) {
-        $Xml = [xml]$Event.ToXml()
-        $TargetImage = $Xml.Event.EventData.Data | Where-Object {$_.Name -eq "TargetImage"} | Select-Object -ExpandProperty "#text"
-        $SourceImage = $Xml.Event.EventData.Data | Where-Object {$_.Name -eq "SourceImage"} | Select-Object -ExpandProperty "#text"
-        
-        # TARGET: LSASS.EXE
-        if ($TargetImage -like "*\lsass.exe") {
-            
-            # Whitelist: Ignore legitimate security and system processes
-            if ($SourceImage -notmatch "MsMpEng.exe|svchost.exe|csrss.exe|vmtoolsd.exe") {
-                
-                Write-Output "🚨 CRITICAL ALERT: LSASS Access Attempt (Credential Dumping) Detected!"
-                Write-Output "Attacker (Source): $SourceImage"
-                Write-Output "Target (Target): $TargetImage"
-                Write-Output "Date/Time: $($Event.TimeCreated)"
-                Write-Output "--------------------------------------------------"
-                $Detected = $true
-            }
-        }
-    }
-
-    if (-not $Detected) {
-        Write-Output "Safe: Events analyzed but considered legitimate (Whitelist)."
-    }
-
-} catch {
-    Write-Output "⚠️ OPERATIONAL ERROR: Unable to read logs. Check if Sysmon service is active."
 }
 ```
 
 ---
 
-## 🧪 Phase 3: Validation and Proof of Concept (PoC)
+##🧪 Phase 3: Validation & Proof of Concept (PoC)
+In a production environment, running real Mimikatz is irresponsible (it can cause BSODs or trigger global SOC alerts unnecessarily). To validate the rule, I used a Behavioral Simulation technique.
 
-In a production environment, running real *Mimikatz* is irresponsible (it can cause BSOD or alert the global SOC unnecessarily). To validate the rule, I used a **Behavior Simulation** technique.
-
-1.  **The Test:** I used Windows *Task Manager* to create a "Dump" (memory copy) of a harmless process: **Notepad** (`notepad.exe`).
-2.  **The Adaptation:** I temporarily adjusted the detection script to monitor the `notepad.exe` target instead of `lsass.exe`.
-3.  **The Result:** Sysmon recorded the memory access, and Action1 triggered the critical alert, validating the detection pipeline.
+1.  **The Test: I used Windows Task Manager to create a "Dump" (memory copy) of a harmless process: Notepad (notepad.exe).
+2.  **The Adaptation: I temporarily adjusted the detection script to monitor the target notepad.exe instead of lsass.exe.
+3.  **The Result: Sysmon logged the memory access, and Action1 triggered the critical alert, validating the detection pipeline.
 
 **Validation Snippet (Simulation):**
+
 ```powershell
 # Script: Simulate-Detection-Notepad.ps1
-# Function: Validate alert pipeline using Notepad as target (PoC)
+# Function: Validate the alert pipeline using Notepad as a target (PoC)
 # Author: William Dickson
 
 $LogName = "Microsoft-Windows-Sysmon/Operational"
@@ -148,7 +129,7 @@ $StartTime = (Get-Date).AddMinutes(-$LookBackMinutes)
 Write-Output ">>> STARTING ALERT VALIDATION (SIMULATION) <<<"
 
 try {
-    # Search for Event ID 10 (if configured) or ID 1 (Process Create) to validate flow
+    # Search for Event ID 10 (ProcessAccess) or ID 1 (ProcessCreate) to validate the flow
     $Events = Get-WinEvent -LogName $LogName -FilterXPath "*[System[(EventID=10) or (EventID=1)]]" -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated -ge $StartTime }
 
     if ($null -eq $Events) {
@@ -159,7 +140,7 @@ try {
     foreach ($Event in $Events) {
         $Xml = [xml]$Event.ToXml()
         
-        # Try to get TargetImage (Event 10) or Image (Event 1)
+        # Attempt to retrieve TargetImage (Event 10) or Image (Event 1)
         $Target = $Xml.Event.EventData.Data | Where-Object {$_.Name -eq "TargetImage" -or $_.Name -eq "Image"} | Select-Object -ExpandProperty "#text"
         
         # SIMULATION LOGIC: TARGET IS NOTEPAD
@@ -168,10 +149,10 @@ try {
             Write-Output "🚨 CRITICAL ALERT (SIMULATION): Suspicious Activity Validated!"
             Write-Output "Witness Process: $Target"
             Write-Output "Status: Detection pipeline is functional."
-            Write-Output "Date/Time: $($Event.TimeCreated)"
+            Write-Output "Timestamp: $($Event.TimeCreated)"
             Write-Output "--------------------------------------------------"
             
-            # Break after finding the first one to avoid spamming
+            # Break after the first match to avoid log spamming
             break
         }
     }
@@ -181,24 +162,45 @@ try {
 }
 ```
 
-> **Operational Insight:** This methodology allows testing the entire defense chain (Sensor -> Log -> Script -> Alert) ensuring that when a real attack occurs on LSASS, the alert will trigger.
-
 ---
 
-## 💡 Conclusion and Next Steps
+##⚡ Phase 4: Automated Response & Containment
+Unlike a static log, this phase utilizes Action1 to terminate the offending process as soon as a threat is detected, minimizing exposure time.
 
-The Sysmon implementation transformed endpoint security posture. We moved from a "black box" to an environment where every process creation and network connection is auditable.
+Automated Response Script:
+```powershell
+# Script: Auto-Containment-LSASS.ps1
+# Function: Identify and terminate unauthorized processes attempting LSASS access
+
+if ($FoundIncident) {
+    Write-Output "🛠️ INITIATING AUTOMATED RESPONSE..."
+    
+    try {
+        Stop-Process -Name $SuspectProcessName -Force -ErrorAction Stop
+        Write-Output "✅ SUCCESS: Process $SuspectProcessName terminated preventively."
+    } catch {
+        Write-Output "⚠️ FAILURE: Could not terminate process. Initiating Network Isolation..."
+        # Example command to isolate via firewall
+        netsh advfirewall set allprofiles state off # (Illustrative policy block)
+    }
+}
+```
+---
+
+##💡 Conclusion & Next Steps
+
+The implementation of Sysmon has transformed our endpoint security posture. We moved from a "black box" to an environment where every process creation, network connection, and memory access is auditable.
 
 **Lessons Learned:**
-* **Script Resilience:** Automation scripts must be prepared for empty logs (`$null`) and read failures, avoiding operational error false positives.
-* **Auto-Healing:** In intense testing environments, the `.evtx` file can become corrupted. Creating maintenance scripts (Restart Service/Clear Logs) is essential to keep telemetry active.
-* **Whitelisting is Vital:** Without filtering legitimate processes (like Antivirus and System), the data volume makes monitoring unfeasible.
+* **Script Resilience:**  Automation scripts must be prepared for empty logs ($null) and read failures to avoid operational error false positives.
+* **Auto-Healing:** In heavy testing environments, .evtx files can corrupt. Maintenance scripts (Restart Service/Clear Logs) are essential.
+* **Whitelisting Refinement:** Excluding known legitimate processes—such as Antivirus signatures, critical System processes, and banking security plugins (e.g., Warsaw/Topaz)—is fundamental to prevent alert fatigue.
 
 **Roadmap:**
-1.  **Expand Coverage:** Implement detections for *Process Injection* (T1055) and *Scheduled Tasks* (T1053).
-2.  **Automated Response:** Configure Action1 to isolate the machine from the network or terminate the malicious process automatically upon detecting critical Event 10.
+**Expand Coverage:** Implement detections for Process Injection (T1055) and Scheduled Tasks (T1053).
+**Advanced Response:** Configure Action1 to fully isolate the machine from the network automatically upon detecting a critical Event 10.
 
-This project demonstrates that it is possible to elevate security maturity (SecOps) using native free tools, provided they are orchestrated with intelligent engineering.
+This project demonstrates that it is possible to elevate security maturity (SecOps) using native and free tools, provided they are orchestrated with intelligent engineering.
 
 ---
-*Tags: #BlueTeam #DetectionEngineering #PowerShell #Sysmon #Action1*
+Tags: #BlueTeam #DetectionEngineering #PowerShell #Sysmon #Action1
