@@ -1,14 +1,13 @@
-🎯 Page Purpose
-This GitHub page serves as the Technical Portfolio for William Menezes, Pentester and Information Security Consultant.
+# 🎯 Page Purpose
 
-Its objective is to be a centralized, public repository that provides Proof of Concept (PoC) of my skills in Cybersecurity, across both Offensive (Red Team) and Defensive (Blue Team) domains.
+This GitHub page serves as the Technical Portfolio for **William Dickson**, Hybrid Security & Cloud Specialist.
 
-The portfolio demonstrates:
+Its objective is to be a centralized, public repository that provides concrete Proof of Concept (PoC) of my engineering capabilities, bridging **Advanced Defense (Blue Team/Detection Engineering)**, **Cloud Security Architecture**, and **Corporate Governance**.
 
-Practical Ability: Through detailed write-ups and Penetration Test reports conducted in controlled environments (Web and Active Directory).
+### 🛡️ The portfolio demonstrates:
 
-Formal Knowledge: Documentation of my certifications and technical education (OSCP, Credly Badges, LetsDefend, etc.).
+* **⚙️ Practical Ability:** Through detailed technical write-ups, Detection Engineering labs (e.g., Sysmon/SIEM), and Serverless Cloud Architectures (AWS/Azure) validated in production-like environments.
+* **🎓 Formal Knowledge:** Documentation of my academic achievements (Postgraduate in Cloud Computing & AI) and elite credentials (ABNT/ISO Committee member, GRC, LetsDefend).
+* **🗺️ Strategic Planning:** Exposure of my professional roadmap, focusing on DevSecOps, FinOps, and AI-driven security.
 
-Planning: Exposure of my professional roadmap and career development goals.
-
-In summary, it is a dynamic résumé focused on technical evidence.
+> *In summary, this is not just a dynamic résumé; it is a live repository of enterprise-grade security execution.*
