@@ -6,7 +6,7 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência estrat�
 
 ## 👤 Resumo Executivo
 
-- **Cargo Atual:** Supervisor de Tecnologia & DPO (Data Protection Officer).
+- **Cargo:** Especialista em Segurança da Informação & Privacidade.
 - **Foco de Atuação:** Líder em Segurança da Informação, Governança, Risco e Compliance (GRC).
 - **Visão Estratégica:** Especialista com sólida vivência na liderança de infraestruturas críticas e gestão de riscos cibernéticos. Atualmente, sou responsável pela manutenção da conformidade com a **ISO 27001**, gestão do ciclo de vida de vulnerabilidades e implementação de controles de privacidade de dados conforme a LGPD. Unindo 23 anos de bagagem em TI à execução técnica de ponta em segurança defensiva e engenharia de detecção.
 
@@ -50,18 +50,12 @@ Bem-vindo ao meu portfólio profissional. Aqui apresento a convergência estrat�
 
 ## ⚖️ Governança, Risco e Compliance (GRC)
 
-Como **DPO e Mantenedor de Segurança**, atuo na camada estratégica que protege o valor do negócio:
+Como **DPO e Mantenedor de Segurança**, atuei na camada estratégica que protege o valor do negócio:
 - **ISO 27001:** Gestão de controles e manutenção de certificação internacional.
 - **Privacidade (LGPD):** Implementação de políticas de privacidade e resposta a incidentes com foco em conformidade jurídica.
 - **Gestão de Vulnerabilidades:** Coordenação do ciclo de identificação, priorização (CVSS) e correção de falhas em ativos críticos.
 
 ---
 
-## 📊 Roadmap de Evolução Técnica
 
-- **6 Meses:** Elevar proficiência em inglês corporativo para nível B2/C1 e concluir certificação Microsoft SC-200.
-- **12 Meses:** Obter a certificação AWS Certified Security – Specialty para consolidar expertise em nuvem.
-- **Longo Prazo:** Atuar como CISO ou Head de Segurança em ambientes globais, liderando estratégias de Purple Team e Resiliência Cibernética.
-
----
 [LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1)
