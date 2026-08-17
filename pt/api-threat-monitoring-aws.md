@@ -1,77 +1,78 @@
-# API Threat Monitoring & Auto-Response on AWS
+# Monitoramento de Ameaças e Resposta Automática em APIs na AWS
 
-Serverless security layer that inspects API traffic in real time, blocks malicious requests dynamically, and alerts the security team automatically — built to close a gap identified during a third-party security audit (unmonitored, unprotected APIs handling sensitive data).
+Camada de segurança serverless que inspeciona o tráfego de APIs em tempo real, bloqueia requisições maliciosas de forma dinâmica e alerta o time de segurança automaticamente — construída para fechar uma lacuna identificada em uma auditoria de segurança de terceiros (APIs sem monitoramento e sem proteção, lidando com dados sensíveis).
 
-## Problem
+## Problema
 
-APIs are the primary integration surface between internal and external systems, but they're also a growing attack surface: data leakage, DoS attempts, and no centralized visibility into traffic, abuse, or compliance posture (LGPD / PCI DSS). An internal audit flagged this gap directly — no monitoring, no automated response, no auditable trail.
+APIs são a principal superfície de integração entre sistemas internos e externos, mas também são uma superfície de ataque crescente: vazamento de dados, tentativas de DoS e nenhuma visibilidade centralizada sobre tráfego, abuso ou postura de compliance (LGPD / PCI DSS). Uma auditoria interna apontou essa lacuna diretamente — sem monitoramento, sem resposta automatizada, sem trilha auditável.
 
-## Architecture
+## Arquitetura
 
 ```
-Client → API Gateway (REST, regional) → Lambda (MonitoringAPI)
+Cliente → API Gateway (REST, regional) → Lambda (MonitoramentoAPI)
                                               │
                     ┌─────────────────────────┼─────────────────────────┐
                     ▼                         ▼                         ▼
               AWS WAF (Web ACL)         Amazon SNS               Amazon CloudWatch
-         dynamic IP Set + managed     real-time alerts to      centralized logs, custom
-         rules (SQLi, XSS, rate      security team (email)    metrics, alarms (5xx spikes,
-         limit 2000 req/5min/IP)                                WAF block rate, Lambda errors)
+         IP Set dinâmico + regras     alertas em tempo real    logs centralizados, métricas
+         gerenciadas (SQLi, XSS,      para o time de           customizadas, alarmes (picos
+         rate limit 2000 req/5min)    segurança (e-mail)       5xx, taxa de bloqueio WAF, erros Lambda)
 ```
 
-**Flow:** every request hits API Gateway → Lambda inspects source IP, User-Agent, path and payload → if a malicious pattern is detected (known bad IP, malicious UA, SQLi-like payload), Lambda updates the WAF IP Set in real time, blocking that origin for all future requests, and publishes an alert via SNS. Every event — clean or blocked — is logged to CloudWatch for full traceability.
+**Fluxo:** toda requisição passa pelo API Gateway → a Lambda inspeciona IP de origem, User-Agent, path e payload → se um padrão malicioso é detectado (IP conhecido, User-Agent malicioso, payload típico de SQLi), a Lambda atualiza o IP Set do WAF em tempo real, bloqueando essa origem para todas as requisições futuras, e publica um alerta via SNS. Todo evento — limpo ou bloqueado — é registrado no CloudWatch para rastreabilidade total.
 
-## What's implemented
+## O que foi implementado
 
-- **API Gateway (REST, regional)** — public endpoint, Lambda proxy integration for full HTTP event passthrough.
-- **Lambda (`MonitoringAPI`, Python 3.13)** — inspects each request, runs threat-intel checks (suspicious IP / UA / payload patterns), triggers WAF updates and SNS alerts. Returns 403 on block, 200 on pass, 500 on controlled exception. Configuration (WAF region, IP Set ID, SNS topic ARN) is externalized via environment variables — no hardcoded values.
-- **AWS WAF (Web ACL, regional)** — AWS managed rule groups (Common Rule Set, SQLi, Admin Protection) + a custom rate-based rule (2,000 requests / 5 min per source IP) + a dynamic IP Set updated programmatically by Lambda.
-- **CloudWatch** — dedicated log groups per endpoint, custom metrics for error count and latency, Logs Insights queries for event correlation, and alarms on: 5xx error spikes, high WAF block rate, and Lambda execution errors.
-- **SNS** — alert topic wired into CloudWatch alarms and directly into the Lambda's threat-detection path, notifying the security team by email in near real time.
+- **API Gateway (REST, regional)** — endpoint público, integração via Lambda Proxy para passagem completa dos detalhes do evento HTTP.
+- **Lambda (`MonitoramentoAPI`, Python 3.13)** — inspeciona cada requisição, executa verificações de threat intelligence (padrões suspeitos de IP / User-Agent / payload), aciona atualizações no WAF e alertas via SNS. Retorna 403 em caso de bloqueio, 200 em caso normal e 500 em exceção controlada. Configurações (região do WAF, ID do IP Set, ARN do tópico SNS) são externalizadas via variáveis de ambiente — sem valores fixos no código.
+- **AWS WAF (Web ACL, regional)** — regras gerenciadas da AWS (Common Rule Set, SQLi, Admin Protection) + regra customizada de rate limiting (2.000 requisições / 5 min por IP de origem) + IP Set dinâmico atualizado programaticamente pela Lambda.
+- **CloudWatch** — grupos de log dedicados por endpoint, métricas customizadas para contagem de erros e latência, consultas via Logs Insights para correlação de eventos, e alarmes para: picos de erro 5xx, alta taxa de bloqueio no WAF e erros de execução da Lambda.
+- **SNS** — tópico de alerta integrado aos alarmes do CloudWatch e diretamente ao fluxo de detecção da Lambda, notificando o time de segurança por e-mail quase em tempo real.
 
-## Validation
+## Validação
 
-Instead of just describing the design, I ran controlled attack simulations against the deployed stack to prove the automated response actually works:
+Em vez de apenas descrever o design, executei simulações controladas de ataque contra o stack implantado para comprovar que a resposta automatizada realmente funciona:
 
-**SQL injection attempt, before WAF rules active:**
+**Tentativa de SQL injection, antes das regras do WAF ativas:**
 ```
-$ curl -X POST https://<api-id>.execute-api.us-east-1.amazonaws.com/default/monitoring \
+$ curl -X POST https://<api-id>.execute-api.us-east-1.amazonaws.com/default/monitoramento \
     -d "id=1' OR '1'='1" --ssl-no-revoke
-{"message": "API called successfully", "log": {...}}   # request passed through
+{"message": "API chamada com sucesso", "log": {...}}   # requisição passou
 ```
 
-**Same request, after WAF managed rules + custom SQLi protection active:**
+**Mesma requisição, com regras gerenciadas do WAF + proteção customizada contra SQLi ativas:**
 ```
-$ curl -X POST https://<api-id>.execute-api.us-east-1.amazonaws.com/default/monitoring \
+$ curl -X POST https://<api-id>.execute-api.us-east-1.amazonaws.com/default/monitoramento \
     -d "id=1' OR '1'='1" --ssl-no-revoke
-{"message": "Forbidden"}   # blocked, HTTP 403
+{"message": "Forbidden"}   # bloqueado, HTTP 403
 ```
 
-**Rate-limit test:** flooded the endpoint with >2,000 requests in under 5 minutes from a single source — WAF rate-based rule triggered, source blocked, CloudWatch alarm fired, SNS alert delivered to the security inbox within seconds.
+**Teste de rate limit:** inundei o endpoint com mais de 2.000 requisições em menos de 5 minutos a partir de uma única origem — a regra de rate limit do WAF disparou, a origem foi bloqueada, o alarme do CloudWatch foi acionado e o alerta via SNS chegou à caixa de entrada de segurança em segundos.
 
-**Dynamic IP blocking:** simulated requests from a flagged IP — Lambda detected the pattern, updated the WAF IP Set programmatically, and confirmed the same source was blocked on the next request without any manual intervention.
+**Bloqueio dinâmico de IP:** simulei requisições de um IP sinalizado — a Lambda detectou o padrão, atualizou o IP Set do WAF programaticamente e confirmou que a mesma origem foi bloqueada na requisição seguinte, sem qualquer intervenção manual.
 
-All three scenarios are logged end-to-end in CloudWatch, so every block, every alert, and every rule change is traceable — which is the actual point: not just stopping the request, but proving it happened and being able to show that proof in an audit.
+Os três cenários estão registrados de ponta a ponta no CloudWatch, então todo bloqueio, todo alerta e toda mudança de regra é rastreável — que é o ponto real: não apenas parar a requisição, mas provar que aconteceu e conseguir mostrar essa prova numa auditoria.
 
-## Results
+## Resultados
 
-- Malicious traffic (SQLi payloads, rate-limit abuse, flagged IPs) blocked automatically, with zero manual intervention after deployment.
-- Full request-to-response traceability via CloudWatch — supports LGPD/PCI DSS audit requirements instead of just claiming compliance.
-- Mean time to alert: seconds (SNS fires directly off the CloudWatch alarm and off the Lambda's own detection path).
-- Entire stack built and tested on AWS Free Tier — zero infrastructure cost during development.
+- Tráfego malicioso (payloads de SQLi, abuso de rate limit, IPs sinalizados) bloqueado automaticamente, sem intervenção manual após o deploy.
+- Rastreabilidade completa de requisição a resposta via CloudWatch — suporta requisitos de auditoria LGPD/PCI DSS em vez de apenas alegar compliance.
+- Tempo médio até o alerta: segundos (o SNS dispara diretamente pelo alarme do CloudWatch e pelo próprio caminho de detecção da Lambda).
+- Todo o stack construído e testado no Free Tier da AWS — custo zero de infraestrutura durante o desenvolvimento.
 
 ## Stack
 
-`AWS API Gateway` · `AWS Lambda (Python)` · `AWS WAF` · `Amazon CloudWatch (Logs, Metrics, Alarms, Logs Insights)` · `Amazon SNS` · `IAM`
+`AWS API Gateway` · `AWS Lambda (Python)` · `AWS WAF` · `Amazon CloudWatch (Logs, Métricas, Alarmes, Logs Insights)` · `Amazon SNS` · `IAM`
 
-## Next steps (roadmap)
+## Próximos passos (roadmap)
 
-- Expand WAF custom rules to cover brute force and endpoint enumeration patterns.
-- Feed CloudWatch/SNS events into a corporate SIEM/SOAR for centralized correlation.
-- Restrict direct API Gateway access to CloudFront-originated traffic only (secret header / mutual auth).
-- Build CloudWatch dashboards for real-time security/performance KPIs.
-- Extend the architecture to multi-cloud (Azure, GCP) for cross-provider resilience and synchronized IP blocking.
+- Expandir as regras customizadas do WAF para cobrir padrões de brute force e enumeração de endpoints.
+- Alimentar eventos do CloudWatch/SNS em um SIEM/SOAR corporativo para correlação centralizada.
+- Restringir o acesso direto ao API Gateway apenas a tráfego originado do CloudFront (header secreto / autenticação mútua).
+- Construir dashboards no CloudWatch para KPIs de segurança e performance em tempo real.
+- Estender a arquitetura para multi-cloud (Azure, GCP) para resiliência entre provedores e bloqueio sincronizado de IPs.
 
 ---
 
-*Originally developed as the applied capstone project for a postgraduate degree in Cloud Computing & AI (XP Educação, 2025). This repo presents the technical implementation; academic framing (Canvas, personas, business model canvas) was stripped out for portfolio purposes.*
+*Originalmente desenvolvido como projeto aplicado de conclusão da pós-graduação em Cloud Computing e IA (XP Educação, 2025). Este repositório apresenta a implementação técnica; o enquadramento acadêmico (Canvas, personas, modelo de negócio) foi removido para fins de portfólio.*
+
