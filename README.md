@@ -1,13 +1,37 @@
-# 🎯 Page Purpose
+<div align="center">
 
-This GitHub page serves as the Technical Portfolio for **William Dickson**, Hybrid Security & Cloud Specialist.
+# William Dickson
+### Information Security Specialist — GRC · Cloud Security · Threat Detection
 
-Its objective is to be a centralized, public repository that provides concrete Proof of Concept (PoC) of my engineering capabilities, bridging **Advanced Defense (Blue Team/Detection Engineering)**, **Cloud Security Architecture**, and **Corporate Governance**.
+🇧🇷 [Português](README.pt-BR.md) · 🇺🇸 English
 
-### 🛡️ The portfolio demonstrates:
+</div>
 
-* **⚙️ Practical Ability:** Through detailed technical write-ups, Detection Engineering labs (e.g., Sysmon/SIEM), and Serverless Cloud Architectures (AWS/Azure) validated in production-like environments.
-* **🎓 Formal Knowledge:** Documentation of my academic achievements (Postgraduate in Cloud Computing & AI) and elite credentials (ABNT/ISO Committee member, GRC, LetsDefend).
-* **🗺️ Strategic Planning:** Exposure of my professional roadmap, focusing on DevSecOps, FinOps, and AI-driven security.
+---
 
-> *In summary, this is not just a dynamic résumé; it is a live repository of enterprise-grade security execution.*
+Information Security Lead & DPO with 5+ years driving GRC, cloud security, and threat detection programs. This repository is my technical proof of work — real architectures, real detection labs, real evidence, not a resume rewritten as bullet points.
+
+## What you'll find here
+
+| Project | What it proves |
+|---|---|
+| [🛡️ API Threat Monitoring & Auto-Response on AWS](./01-api-threat-monitoring-aws) | Serverless security architecture (API Gateway, Lambda, WAF, CloudWatch, SNS) — validated against real SQLi and rate-limit attack simulations, not just described |
+| [🤖 LLM Security Reference Architecture](./02-llm-security-reference-arch) | Framework for securing LLM-integrated systems — threat modeling, guardrails, and controls for AI-driven products |
+| [🔎 Sysmon + Action1 Threat Hunting Lab](./03-sysmon-action1-threat-hunting) | End-to-end detection engineering lab — telemetry collection, hunting queries, and MITRE ATT&CK-mapped detections |
+
+Each project includes architecture, implementation, and validation evidence — not just a description of what was built.
+
+## Background
+
+- **Information Security Lead, DPO & IT Supervisor** — 5+ years, Grupo Idlewild (Korn Translations / Zaum / Langsol)
+- **ISO/IEC 27001:2022** — active contributor to the ABNT/ISO study committee for the Brazilian national standard update
+- **Postgraduate, Cloud Computing & AI** — XP Educação
+- **Core areas:** CTI, GRC, LGPD/GDPR, DLP, AWS Security, IAM, Incident Response
+
+## Currently exploring
+
+DevSecOps automation, AI-driven security tooling (LangGraph/MCP agents), and FinOps-aware cloud security design.
+
+## Get in touch
+
+📫 [LinkedIn](https://www.linkedin.com/in/williamdmenezes/) · 📍 São Paulo, Brazil
