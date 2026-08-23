@@ -1,12 +1,4 @@
----
-layout: post
-title: "Monitoramento de Ameaças e Resposta Automática em APIs na AWS"
-date: 2025-08-09
-categories: [Cloud Security, Serverless, AWS]
-tags: [AWS, API Gateway, Lambda, WAF, CloudWatch, SNS]
-description: "Camada de segurança serverless que inspeciona tráfego de APIs em tempo real, bloqueia requisições maliciosas e alerta o time de segurança automaticamente."
----
-
+# 🛡️ Monitoramento de Ameaças e Resposta Automática em APIs na AWS
 
 ![Category](https://img.shields.io/badge/Category-Cloud_Security-blue)
 ![Focus](https://img.shields.io/badge/Focus-Serverless_Automation-success)

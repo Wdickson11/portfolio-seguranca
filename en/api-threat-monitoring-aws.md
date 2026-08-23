@@ -1,4 +1,16 @@
-# API Threat Monitoring & Auto-Response on AWS
+---
+layout: post
+title: "API Threat Monitoring & Auto-Response on AWS"
+date: 2025-08-09
+categories: [Cloud Security, Serverless, AWS]
+tags: [AWS, API Gateway, Lambda, WAF, CloudWatch, SNS]
+description: "Serverless security layer that inspects API traffic in real time, blocks malicious requests dynamically, and alerts the security team automatically."
+---
+
+
+![Category](https://img.shields.io/badge/Category-Cloud_Security-blue)
+![Focus](https://img.shields.io/badge/Focus-Serverless_Automation-success)
+![Stack](https://img.shields.io/badge/Stack-AWS-orange)
 
 Serverless security layer that inspects API traffic in real time, blocks malicious requests dynamically, and alerts the security team automatically — built to close a gap identified during a third-party security audit (unmonitored, unprotected APIs handling sensitive data).
 
@@ -64,7 +76,7 @@ All three scenarios are logged end-to-end in CloudWatch, so every block, every a
 
 `AWS API Gateway` · `AWS Lambda (Python)` · `AWS WAF` · `Amazon CloudWatch (Logs, Metrics, Alarms, Logs Insights)` · `Amazon SNS` · `IAM`
 
-## Next steps (roadmap)
+## Roadmap
 
 - Expand WAF custom rules to cover brute force and endpoint enumeration patterns.
 - Feed CloudWatch/SNS events into a corporate SIEM/SOAR for centralized correlation.

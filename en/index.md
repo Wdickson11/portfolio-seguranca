@@ -1,3 +1,9 @@
+---
+layout: default
+title: William Dickson — Information Security Specialist
+permalink: /en/
+---
+
 # 🛡️ Cybersecurity & Privacy Leader | William Menezes
 
 Welcome to my professional portfolio. Here, I showcase the strategic convergence of my 23-year career in Information Technology with my technical expertise in Information Security and GRC (Governance, Risk, and Compliance).
@@ -16,7 +22,7 @@ Welcome to my professional portfolio. Here, I showcase the strategic convergence
 
 - **Postgraduate Degree:** Cloud Computing with Artificial Intelligence (XP Educação).
 - **Executive Extension:** DPO Master - Data Protection Officer (FaCiencia).
-- **Bachelor’s Degree:** Information Security Technology (FMU).
+- **Bachelor's Degree:** Information Security Technology (FMU).
 
 ### 📜 Certifications & Badges
 
@@ -41,6 +47,18 @@ Welcome to my professional portfolio. Here, I showcase the strategic convergence
 - **MITRE Mapping:** Focused on **OS Credential Dumping (T1003.001)** technique.
 - [Access Full Case Study](sysmon-threat-hunting.md)
 
+### 🛡️ API Threat Monitoring & Auto-Response on AWS
+- **Description:** Serverless security stack (API Gateway, Lambda, WAF, CloudWatch, SNS) validated against real SQL injection and rate-limit attack simulations.
+- **Impact:** Malicious traffic blocked automatically, zero manual intervention after deployment, full request-to-response traceability for LGPD/PCI DSS audits.
+- **Technologies:** AWS API Gateway, Lambda (Python), WAF, CloudWatch, SNS, IAM.
+- [Access Full Case Study](api-threat-monitoring-aws.md)
+
+### 🤖 LLM Security Architecture: Defense-in-Depth
+- **Description:** Defense-in-depth reference architecture mitigating prompt injection, jailbreaking, and excessive agency in LLM-integrated systems.
+- **Impact:** A structured, OWASP LLM Top 10-mapped framework for guardrails, system prompt hardening, and least-privilege tool calling.
+- **Technologies:** Python, OWASP LLM Top 10, Llama Guard / NeMo Guardrails concepts.
+- [Access Full Case Study](llm-security-reference-arch.md)
+
 ### 🏗️ Active Directory Hardening & Auditing
 - **Description:** Auditing and remediation of vulnerabilities within a corporate Active Directory environment.
 - **Impact:** Significant reduction of the attack surface by eliminating critical privilege escalation paths to Domain Admin.
@@ -51,10 +69,10 @@ Welcome to my professional portfolio. Here, I showcase the strategic convergence
 ## ⚖️ Governance, Risk, and Compliance (GRC)
 
 As a **DPO and Security Lead**, I have operated at the strategic layer that protects business value:
-- **ISO 27001:** Control management and maintenance of international certification.
+- **ISO 27001:** Control management and maintenance of international certification; active contributor to the ABNT/ISO study committee for the Brazilian national standard update.
 - **Privacy (LGPD):** Implementation of privacy policies and incident response frameworks with a focus on legal compliance.
 - **Vulnerability Management:** Coordinating the identification, prioritization (CVSS), and remediation cycle for critical assets.
 
 ---
 
-[LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson1)
+[LinkedIn](https://www.linkedin.com/in/williamdmenezes) | [GitHub](https://github.com/Wdickson11)
